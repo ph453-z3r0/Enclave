@@ -1,7 +1,5 @@
 # Enclave
 
-![front_image](https://github.com/ph453-z3r0/Enclave/blob/main/images/ui.png?raw=true)
-
 **Secure Peer-to-Peer Communication Tool with CLI & Modern Web GUI**
 
 Enclave is a fully encrypted messaging system that enables secure communication without centralized servers. Choose between:
@@ -308,6 +306,9 @@ enclave --listen --port 8001
 - Reduce `max_workers` in network.py
 - Reduce `num_message_workers`
 - Check for message flood attacks
+
+### User Interface
+![front_image](https://github.com/ph453-z3r0/Enclave/blob/main/images/ui.png?raw=true)
 
 ## 🤝 Contributing
 
