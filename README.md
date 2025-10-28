@@ -1,5 +1,7 @@
 # Enclave
 
+![Front image](images/front.png)
+
 **Secure Peer-to-Peer Communication Tool with CLI & Modern Web GUI**
 
 Enclave is a fully encrypted messaging system that enables secure communication without centralized servers. Choose between:
