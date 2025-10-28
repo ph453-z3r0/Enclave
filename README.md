@@ -1,6 +1,6 @@
 # Enclave
 
-![Front image](images/front.png)
+![Front image](https://github.com/ph453-z3r0/Enclave/blob/main/images/front.png)
 
 **Secure Peer-to-Peer Communication Tool with CLI & Modern Web GUI**
 
