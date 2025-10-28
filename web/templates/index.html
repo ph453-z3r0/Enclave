@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enclave - Secure Messaging</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-info">
+                    <div class="avatar">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div class="user-details">
+                        <h3>Enclave</h3>
+                        <p id="my-fingerprint" class="fingerprint">Loading...</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="icon-btn" onclick="showAddPeerModal()" title="Add Peer">
+                        <i class="fas fa-user-plus"></i>
+                    </button>
+                    <button class="icon-btn" onclick="showBroadcastModal()" title="Broadcast">
+                        <i class="fas fa-bullhorn"></i>
+                    </button>
+                    <button class="icon-btn" onclick="showMyKeyModal()" title="My Public Key">
+                        <i class="fas fa-key"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search or start new chat" id="search-input" onkeyup="filterPeers()">
+            </div>
+
+            <div class="peers-list" id="peers-list">
+                <div class="no-peers">
+                    <i class="fas fa-user-friends"></i>
+                    <p>No peers yet</p>
+                    <button class="btn-primary" onclick="showAddPeerModal()">Add Your First Peer</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="chat-area">
+            <div class="welcome-screen" id="welcome-screen">
+                <div class="welcome-content">
+                    <i class="fas fa-shield-alt"></i>
+                    <h1>Enclave Web</h1>
+                    <p>Secure end-to-end encrypted messaging</p>
+                    <div class="features">
+                        <div class="feature">
+                            <i class="fas fa-lock"></i>
+                            <span>RSA-4096 Encryption</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-bolt"></i>
+                            <span>High Performance</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-user-secret"></i>
+                            <span>No Central Server</span>
+                        </div>
+                    </div>
+                    <p class="instruction">Click on a peer to start chatting</p>
+                </div>
+            </div>
+
+            <div class="chat-container" id="chat-container" style="display: none;">
+                <div class="chat-header">
+                    <div class="peer-info">
+                        <div class="avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <h3 id="current-peer-name">Peer Name</h3>
+                            <p id="current-peer-status" class="status">Click to view info</p>
+                        </div>
+                    </div>
+                    <div class="chat-actions">
+                        <button class="icon-btn" onclick="searchInChat()" title="Search">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        <button class="icon-btn" onclick="showPeerInfo()" title="Peer Info">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="messages-container" id="messages-container">
+                    <!-- Messages will be inserted here -->
+                </div>
+
+                <div class="typing-indicator" id="typing-indicator" style="display: none;">
+                    <span>Typing</span>
+                    <div class="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+
+                <div class="chat-input-container">
+                    <button class="icon-btn" onclick="showEmojiPicker()" title="Emoji">
+                        <i class="fas fa-smile"></i>
+                    </button>
+                    <button class="icon-btn" onclick="attachFile()" title="Attach File">
+                        <i class="fas fa-paperclip"></i>
+                    </button>
+                    <input type="text" id="message-input" placeholder="Type a message" onkeypress="handleKeyPress(event)" oninput="handleTyping()">
+                    <button class="send-button" onclick="sendMessage()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Peer Modal -->
+    <div class="modal" id="add-peer-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-user-plus"></i> Add New Peer</h2>
+                <button class="close-btn" onclick="closeModal('add-peer-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Peer Name</label>
+                    <input type="text" id="peer-name" placeholder="Alice">
+                </div>
+                <div class="form-group">
+                    <label>IP Address / Hostname</label>
+                    <input type="text" id="peer-host" placeholder="192.168.1.100 or example.com">
+                </div>
+                <div class="form-group">
+                    <label>Port</label>
+                    <input type="number" id="peer-port" placeholder="8000" value="8000">
+                </div>
+                <div class="form-group">
+                    <label>Public Key (PEM format)</label>
+                    <textarea id="peer-public-key" rows="8" placeholder="-----BEGIN PUBLIC KEY-----&#10;...&#10;-----END PUBLIC KEY-----"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-secondary" onclick="closeModal('add-peer-modal')">Cancel</button>
+                    <button class="btn-primary" onclick="addPeer()">Add Peer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- My Public Key Modal -->
+    <div class="modal" id="my-key-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-key"></i> My Public Key</h2>
+                <button class="close-btn" onclick="closeModal('my-key-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Share this public key with your peers so they can add you:</p>
+                <div class="key-display">
+                    <textarea id="my-public-key" readonly rows="10"></textarea>
+                </div>
+                <div class="fingerprint-display">
+                    <label>Fingerprint:</label>
+                    <input type="text" id="my-full-fingerprint" readonly>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-secondary" onclick="copyPublicKey()">
+                        <i class="fas fa-copy"></i> Copy Key
+                    </button>
+                    <button class="btn-primary" onclick="downloadPublicKey()">
+                        <i class="fas fa-download"></i> Download
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Broadcast Modal -->
+    <div class="modal" id="broadcast-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-bullhorn"></i> Broadcast Message</h2>
+                <button class="close-btn" onclick="closeModal('broadcast-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Send a message to all <span id="peer-count">0</span> peer(s) simultaneously:</p>
+                <div class="form-group">
+                    <textarea id="broadcast-message" rows="4" placeholder="Type your broadcast message..."></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-secondary" onclick="closeModal('broadcast-modal')">Cancel</button>
+                    <button class="btn-primary" onclick="broadcastMessage()">
+                        <i class="fas fa-paper-plane"></i> Send to All
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Peer Info Modal -->
+    <div class="modal" id="peer-info-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-info-circle"></i> Peer Information</h2>
+                <button class="close-btn" onclick="closeModal('peer-info-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="peer-info-details">
+                    <div class="info-row">
+                        <label>Name:</label>
+                        <span id="info-peer-name"></span>
+                    </div>
+                    <div class="info-row">
+                        <label>Fingerprint:</label>
+                        <span id="info-peer-fingerprint" class="fingerprint"></span>
+                    </div>
+                    <div class="info-row">
+                        <label>Address:</label>
+                        <span id="info-peer-address"></span>
+                    </div>
+                    <div class="info-row">
+                        <label>Status:</label>
+                        <span id="info-peer-status"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container"></div>
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
