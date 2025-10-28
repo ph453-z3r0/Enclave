@@ -317,10 +317,6 @@ Contributions welcome! Areas for enhancement:
 - Offline message queuing
 - GUI interface (PyQt/Tkinter)
 
-## 📄 License
-
-[Add your license here]
-
 ## 🙏 Acknowledgments
 
 Built with:
